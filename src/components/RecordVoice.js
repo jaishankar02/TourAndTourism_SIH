@@ -46,16 +46,17 @@ const RecordVoice = () => {
         mediaRecorder.current.onstop = async () => {
             console.log(localAudioChunks);
             const blob = new Blob(localAudioChunks, { type: mimetype });
+            console.log(blob);
             const audioUrl = URL.createObjectURL(blob);
             // sending Every audio file every 15s By API call
             // write API endPoint here
-            const res = await axios.post('', {
-                VoiceRecording: blob
-            }, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                }
-            });
+            // const res = await axios.post('', {
+            //     VoiceRecording: blob
+            // }, {
+            //     headers: {
+            //         "Content-Type": "multipart/form-data",
+            //     }
+            // });
 
             setAudio(audioUrl);
         }
