@@ -36,7 +36,7 @@ const RecordVoice = () => {
 
         console.log("again starting")
         const localAudioChunks = [];
-        const media = new MediaRecorder(stream, { type: mimetype });
+        const media = new MediaRecorder(stream);
         mediaRecorder.current = media;
 
         mediaRecorder.current.ondataavailable = (e) => {
@@ -45,21 +45,29 @@ const RecordVoice = () => {
 
         mediaRecorder.current.onstop = async () => {
             console.log(localAudioChunks);
-            const blob = new Blob(localAudioChunks, { type: mimetype });
+            const blob = new Blob(localAudioChunks, { type: 'audio/wav' });
             const audioFile = new File([blob], 'recorded-audio.wav');
-            const formData = new FormData();
-            formData.append('audioFile', audioFile);
+            console.log(audioFile);
+            // const formData = new FormData();
+            // formData.append('audioFile', audioFile);
+            // console.log(formData);
             console.log(blob);
             const audioUrl = URL.createObjectURL(blob);
+            // const formData = new FormData();
+            // formData.append('audio', blob, 'audio.wav');
+            const formData = new FormData();
+            formData.append('audio', blob);
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}, ${pair[1]}`);
+            }
             // sending Every audio file every 15s By API call
             // write API endPoint here
-            const res = await axios.post('http://localhost:8000/ml/alert', {
-                VoiceRecording: formData,
-            }, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                }
-            });
+            // const res = await axios.post('http://localhost:8800/api/user/alert', {
+            //     "VoiceRecording": formData
+            // });
+            const res = await axios.post('http://localhost:8800/api/user/alert', { "data": formData })
+            console.log(res);
+            console.log("jai");
 
             setAudio(audioUrl);
         }
