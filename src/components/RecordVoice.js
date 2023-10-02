@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios';
+import { render } from '@testing-library/react';
 const RecordVoice = () => {
     const [recordPermission, setRecordPermission] = useState(false);
     // const [media, setMedia] = useState(null);
@@ -46,30 +47,24 @@ const RecordVoice = () => {
         mediaRecorder.current.onstop = async () => {
             console.log(localAudioChunks);
             const blob = new Blob(localAudioChunks, { type: 'audio/wav' });
-            const audioFile = new File([blob], 'recorded-audio.wav');
-            console.log(audioFile);
-            // const formData = new FormData();
-            // formData.append('audioFile', audioFile);
-            // console.log(formData);
-            console.log(blob);
-            const audioUrl = URL.createObjectURL(blob);
-            // const formData = new FormData();
-            // formData.append('audio', blob, 'audio.wav');
-            const formData = new FormData();
-            formData.append('audio', blob);
-            for (const pair of formData.entries()) {
-                console.log(`${pair[0]}, ${pair[1]}`);
-            }
-            // sending Every audio file every 15s By API call
-            // write API endPoint here
-            // const res = await axios.post('http://localhost:8800/api/user/alert', {
-            //     "VoiceRecording": formData
-            // });
-            const res = await axios.post('http://localhost:8800/api/user/alert', { "data": formData })
-            console.log(res);
-            console.log("jai");
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                console.log(reader.result);
+                console.log(typeof reader.result);
+                const base64Data = reader.result;
+                const res = await axios.post('http://localhost:8800/api/user/alert', { "data": base64Data }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data', // Set the appropriate content type
+                    }
+                });
+            };
+            reader.readAsBinaryString(blob);
 
-            setAudio(audioUrl);
+
+
+
+
+            // setAudio(audioUrl);
         }
         setTimeout(() => mediaRecorder.current.stop(), 10000);
         console.log("starting");
@@ -91,3 +86,18 @@ const RecordVoice = () => {
 }
 
 export default RecordVoice
+
+
+
+
+// const audioFile = new File([blob], 'recorded-audio.wav');
+// console.log(audioFile);
+// console.log(blob);
+// const audioUrl = URL.createObjectURL(blob);
+// const a = new Audio(audioUrl);
+// console.log(a);
+// const formData = new FormData();
+// formData.append('audio', blob);
+// for (const pair of formData.entries()) {
+//     console.log(` ${pair[1]}`);
+// }
